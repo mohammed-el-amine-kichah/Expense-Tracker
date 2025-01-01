@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker</title>
+ <link rel="stylesheet" href="tailwind.css">
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Header Section -->
+      <div class="flex items-center mb-8">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">My Expenses</h1>
+          <p class="text-gray-600 mt-1">Track and manage your expenses</p>
+        </div>
+        <div class="flex items-center space-x-4 ml-auto">
+          <div class="relative" id="categoryManager">
+            <button
+              id="dropdownButton"
+              class="flex items-center justify-between w-108 px-4 py-2 bg-purple-600  text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              <span>Manage Categories</span>
+              <svg
+                class="w-4 h-4 ml-2 transition-transform"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div
+              id="dropdownMenu"
+              class="hidden absolute z-10 w-55 mt-1 bg-white rounded-lg shadow-lg border border-gray-200"
+            >
+              <div class="py-1">
+                <button
+                  id="addNewBtn"
+                  class="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-purple-50"
+                >
+                  <svg
+                    class="w-4 h-4 mr-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M12 5v14m-7-7h14" />
+                  </svg>
+                  Add New Category
+                </button>
+                <button
+                  id="editCategoriesBtn"
+                  class="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-purple-50"
+                >
+                  <svg
+                    class="w-4 h-4 mr-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                    />
+                    <path
+                      d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                    />
+                  </svg>
+                  Edit Categories
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end mt-4 mb-4">
+            <button id="exportButton" 
+                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Export PDF
+            </button>
+          </div>
+          
+        </div>
+
+
+        <!-- Add Category Modal -->
+        <div
+          id="addModal"
+          class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        >
+          <div class="bg-white rounded-lg p-6 w-96">
+            <h2 class="text-xl font-semibold mb-4">Add New Category</h2>
+            <form id="addCategoryForm">
+              <input
+                type="text"
+                id="newCategoryName"
+                class="w-full px-3 py-2 border rounded-lg mb-4"
+                placeholder="Category name"
+                required
+              />
+              <div class="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg close-modal"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Edit Categories Modal -->
+        <div
+          id="editModal"
+          class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        >
+          <div class="bg-white rounded-lg p-6 w-96">
+            <h2 class="text-xl font-semibold mb-4">Edit Categories</h2>
+            <div id="categoriesList" class="space-y-2">
+              <!-- Categories will be populated here -->
+            </div>
+            <div class="flex justify-end mt-4">
+              <button
+                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 close-modal"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Expense Dialog -->
+
+      <div
+        id="expense-dialog"
+        class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center"
+      >
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+          <h2 class="text-2xl font-bold mb-4">Add Expense</h2>
+          <form id="expense-form">
+            <div class="flex mb-4">
+              <div class="flex-2 mr-2">
+                <label for="name" class="block text-gray-700"
+                  >Description</label
+                >
+                <input
+                  type="text"
+                  id="name"
+                  class="w-full px-3 py-2 border rounded"
+                  required
+                />
+              </div>
+              <div class="flex-1">
+                <label for="price" class="block text-gray-700">Price</label>
+                <div class="relative">
+                  <input
+                    type="number"
+                    id="price"
+                    class="w-full px-3 py-2 border rounded pr-10 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                    required
+                  />
+                  <span
+                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+                    >$</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label for="category" class="block text-gray-700">Category</label>
+              <select
+                id="Add-category-list"
+                class="w-full px-3 py-2 border rounded"
+                required
+              >
+                <!-- Categories will be populated here -->
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="date" class="block text-gray-700">Date</label>
+              <input
+                type="date"
+                id="date"
+                class="w-full px-3 py-2 border rounded"
+                max=""
+                required
+              />
+            </div>
+            <div class="flex justify-end">
+              <button
+                type="button"
+                id="cancel-button"
+                class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700"
+              >
+                Save
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-gray-500 text-sm font-medium">Total Expenses This month</h3>
+          <p
+            class="text-2xl font-bold text-gray-900 mt-2"
+            id="totalExpenses"
+          ></p>
+          <div class="flex items-center mt-4 text-green-600">
+            <span class="text-sm font-medium"></span>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-gray-500 text-sm font-medium">Biggest Category</h3>
+          <p
+            class="text-2xl font-bold text-gray-900 mt-2"
+            id="biggestCategory"
+          ></p>
+          <div class="flex items-center mt-4 text-purple-600">
+            <span class="text-sm font-medium" id="pourcentage"></span>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-gray-500 text-sm font-medium">Daily Average</h3>
+          <p
+            class="text-2xl font-bold text-gray-900 mt-2"
+            id="dailyAverageExpenses"
+          ></p>
+          <div class="flex items-center mt-4 text-gray-600">
+            <span class="text-sm font-medium">Last 30 days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters Section -->
+      <div class="bg-white rounded-lg shadow mb-8">
+        <div class="p-6">
+          <h2 class="text-lg font-medium text-gray-900 mb-4">Filters</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label
+                for="dateFilter"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Date</label
+              >
+              <input
+                type="date"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                id="dateFilter"
+              />
+            </div>
+            <div>
+              <label
+                for="categoryFilter"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Category</label
+              >
+              <select
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                id="categoryFilter"
+              ></select>
+            </div>
+            <div>
+              <label
+                for="monthFilter"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Month</label
+              >
+              <select
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                id="monthFilter"
+              >
+                <option value="">All Months</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end mb-4">
+        <button
+            id="addButton"
+            class="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 rounded-lg shadow-sm flex items-center space-x-2"
+          >
+            <svg
+              
+              class="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span>Add Expense</span>
+          </button>
+      </div>
+
+      <!-- Expenses Table -->
+      <div class="bg-white rounded-lg shadow overflow-x-auto">
+        <table class="w-full divide-y divide-gray-200">
+          <thead class="bg-purple-500">
+            <tr>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider "
+              >
+                Date
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
+              >
+                Description
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
+              >
+                Category
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
+              >
+                Price
+              </th>
+              <th scope="col" class="relative px-6 py-3">
+                <span class="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="expensesList" class="bg-white divide-y divide-gray-200">
+            <tr></tr>
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden p-12 text-center">
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V7a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No expenses</h3>
+          <p class="mt-1 text-sm text-gray-500">
+            Get started by adding a new expense.
+          </p>
+        </div>
+      </div>
+    </div>
+    <script src="scripts/allExpenses.js"></script>
+    <script src="scripts/addExpense.js"></script>
+    <script src="scripts/manageCategories.js"></script>
+  </body>
+</html>
