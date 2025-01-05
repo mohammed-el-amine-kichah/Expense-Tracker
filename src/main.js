@@ -10,11 +10,14 @@ const {
 
 } = require("./db");
 
-require("electron-reload")(path.join(__dirname, "../src"), {
-  electron: path.join(__dirname, "../node_modules/.bin/electron"),
-});
+if (process.env.NODE_ENV === 'development') {
+  require('electron-reload')(__dirname, {
+      electron: require($,{__dirname}/node_modules/electron)
+  });
+}
 
-const { app, BrowserWindow } = require("electron");
+
+const { app, BrowserWindow } = require("electron"); 
 
 let mainWindow;
 
